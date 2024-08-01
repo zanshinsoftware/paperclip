@@ -4,6 +4,14 @@ module Paperclip
   module Validators
     class AttachmentSizeValidator < ActiveModel::Validations::NumericalityValidator
       AVAILABLE_CHECKS = [:less_than, :less_than_or_equal_to, :greater_than, :greater_than_or_equal_to]
+      CHECKS = {
+        less_than: :<,
+        less_than_or_equal_to: :<=,
+        greater_than: :>,
+        greater_than_or_equal_to: :>=,
+        equal_to: :==,
+        other_than: :!=
+      }.freeze
 
       def initialize(options)
         extract_options(options)
@@ -23,7 +31,7 @@ module Paperclip
           options.slice(*AVAILABLE_CHECKS).each do |option, option_value|
             option_value = option_value.call(record) if option_value.is_a?(Proc)
             option_value = extract_option_value(option, option_value)
-
+            
             unless value.send(CHECKS[option], option_value)
               error_message_key = options[:in] ? :in_between : option
               [ attr_name, base_attr_name ].each do |error_attr_name|
